@@ -13,7 +13,7 @@ public interface UserService {
     UserResponse addUser(UserRequest userRequest);
     UserResponse updateUserById(Long userId, UserRequest userRequest);
     void deleteUserById(Long userId);
-    List<RegistrationTokenResponse> getToken();
+    List<RegistrationTokenResponse> getAllRegistrationTokens();
     RegistrationTokenResponse getRegistrationTokenByUserId(Long userId);
     void updateRegistrationTokenByUserId(Long userId, RegistrationTokenRequest registrationTokenRequest);
 }

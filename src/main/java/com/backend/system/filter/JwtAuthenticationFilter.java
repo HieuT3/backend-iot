@@ -2,6 +2,7 @@ package com.backend.system.filter;
 
 import com.backend.system.exception.ErrorCode;
 import com.backend.system.exception.InvalidTokenException;
+import com.backend.system.exception.TokenException;
 import com.backend.system.security.JwtAuthenticationProvider;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -13,14 +14,13 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.web.servlet.HandlerExceptionResolver;
 
 import java.io.IOException;
 
@@ -32,6 +32,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     JwtAuthenticationProvider jwtAuthenticationProvider;
     UserDetailsService userDetailsService;
+    HandlerExceptionResolver handlerExceptionResolver;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -64,14 +65,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     SecurityContextHolder.getContext().setAuthentication(authenticationToken);
                 } else {
                     log.warn("Token is invalid for user: {}", username);
-                    response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid JWT token");
-                    return;
+                    throw new InvalidTokenException(ErrorCode.INVALID_TOKEN);
                 }
             }
             filterChain.doFilter(request, response);
-        } catch (Exception e) {
+        } catch (TokenException e) {
             log.error("Error processing JWT token: {}", e.getMessage());
-            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized - Invalid or expired JWT token");
+            handlerExceptionResolver.resolveException(request, response, null, e);
         }
     }
 

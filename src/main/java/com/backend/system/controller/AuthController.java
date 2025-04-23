@@ -6,6 +6,8 @@ import com.backend.system.dto.response.ApiResponse;
 import com.backend.system.dto.response.TokenResponse;
 import com.backend.system.dto.response.UserResponse;
 import com.backend.system.service.AuthService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -21,9 +23,13 @@ import org.springframework.web.bind.annotation.*;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequiredArgsConstructor
 @Slf4j
+@Tag(name = "Auth Controller", description = "Controller gồm các API quản lý liên quan tới xác thực")
 public class AuthController {
     AuthService authService;
 
+    @Operation(
+            description = "API đăng nhập hệ thống. Xác thực admin và trả về JWT token."
+    )
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<TokenResponse>> login(@Valid @RequestBody AuthRequest authRequest) {
         log.info("Login request for user: {}", authRequest.getUsername());
@@ -36,6 +42,9 @@ public class AuthController {
         );
     }
 
+    @Operation(
+            description = "API đăng ký tài khoản mới. Tạo tài khoản admin trong hệ thống."
+    )
     @PostMapping("/register")
     public ResponseEntity<ApiResponse<Void>> register(@Valid @RequestBody AuthRequest authRequest) {
         log.info("Register request for user: {}", authRequest.getUsername());
@@ -49,6 +58,9 @@ public class AuthController {
         );
     }
 
+    @Operation(
+            description = "API lấy thông tin admin hiện tại dựa trên JWT token."
+    )
     @GetMapping("/me")
     public ResponseEntity<ApiResponse<UserResponse>> getMe(@AuthenticationPrincipal UserDetails userDetails) {
         log.info("Fetching current user information");
@@ -61,6 +73,9 @@ public class AuthController {
         );
     }
 
+    @Operation(
+            description = "API lấy thông tin registration token của admin hiện tại."
+    )
     @GetMapping("/me/token")
     public ResponseEntity<ApiResponse<String>> getToken(@AuthenticationPrincipal UserDetails userDetails) {
         log.info("Fetching current user token");
@@ -73,6 +88,9 @@ public class AuthController {
         );
     }
 
+    @Operation(
+            description = "API cập nhật registration token của người dùng hiện tại."
+    )
     @PutMapping("/me/token")
     public ResponseEntity<ApiResponse<Void>> updateToken(
             @AuthenticationPrincipal UserDetails userDetails,

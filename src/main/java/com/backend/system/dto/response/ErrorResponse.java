@@ -5,17 +5,20 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDateTime;
+import java.util.Map;
 
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class HistoryResponse {
-    Long historyId;
-    @JsonFormat(pattern = "yyyy-MM-dd HH-mm-ss")
+@Builder
+public class ErrorResponse {
+    int status;
+    String errorCode;
+    String message;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     LocalDateTime timestamp;
-    PeopleResponse people;
-    String imagePath;
-    String mode;
+    String path;
+    Map<String, String> errors;
 }

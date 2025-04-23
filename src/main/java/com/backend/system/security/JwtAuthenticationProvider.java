@@ -2,6 +2,7 @@ package com.backend.system.security;
 
 import com.backend.system.exception.ErrorCode;
 import com.backend.system.exception.InvalidTokenException;
+import com.backend.system.exception.TokenExpiredException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -54,14 +55,18 @@ public class JwtAuthenticationProvider {
         return buildToken(extractClaims, userDetails, expiration);
     }
 
-    public Claims extractAllClaims(String token) {
-        return Jwts
-                .parserBuilder()
-                .setSigningKey(getSignInKey())
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
-    }
+   public Claims extractAllClaims(String token) {
+       try {
+           return Jwts
+                   .parserBuilder()
+                   .setSigningKey(getSignInKey())
+                   .build()
+                   .parseClaimsJws(token)
+                   .getBody();
+       } catch (Exception e) {
+           throw new InvalidTokenException(ErrorCode.INVALID_TOKEN);
+       }
+   }
 
     public <T> T extractClaims(String token, Function<Claims, T> claimsResolver) {
         final Claims claims = extractAllClaims(token);
@@ -78,20 +83,20 @@ public class JwtAuthenticationProvider {
 
     public boolean isTokenValid(String token) {
         try {
-            Jwts
-                    .parserBuilder()
-                    .setSigningKey(getSignInKey())
-                    .build()
-                    .parseClaimsJws(token);
-        } catch (RuntimeException e) {
+            extractAllClaims(token);
+            return true;
+        } catch (InvalidTokenException e) {
             return false;
         }
-        return true;
     }
 
     public boolean isTokenValid(String token, UserDetails userDetails) {
         String username = userDetails.getUsername();
-        return !isTokenExpired(token) && extractUserName(token).equalsIgnoreCase(username);
+        if (isTokenExpired(token))
+            throw new TokenExpiredException(ErrorCode.TOKEN_EXPIRED);
+        if (!extractUserName(token).equals(username))
+            throw new InvalidTokenException(ErrorCode.INVALID_TOKEN);
+        return true;
     }
 
     public boolean isTokenExpired(String token) {

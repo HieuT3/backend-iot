@@ -4,6 +4,8 @@ import com.backend.system.dto.request.HistoryRequest;
 import com.backend.system.dto.response.ApiResponse;
 import com.backend.system.dto.response.HistoryResponse;
 import com.backend.system.service.HistoryService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -21,9 +23,13 @@ import java.time.LocalDate;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequiredArgsConstructor
 @Slf4j
+@Tag(name = "History Controller", description = "Controller gồm các API quản lý history")
 public class HistoryController {
     HistoryService historyService;
 
+    @Operation(
+            description = "API lấy danh sách tất cả history trong hệ thống với phân trang và lọc theo thời gian."
+    )
     @GetMapping("")
     public ResponseEntity<ApiResponse<Page<HistoryResponse>>> getAll(
         @RequestParam(name = "page", defaultValue = "0") int page,
@@ -40,6 +46,9 @@ public class HistoryController {
                 .build());
     }
 
+    @Operation(
+            description = "API thêm mới lịch sử vào hệ thống."
+    )
     @PostMapping("")
     public ResponseEntity<ApiResponse<HistoryResponse>> addHistory(
             @Valid @RequestBody HistoryRequest historyRequest
@@ -52,6 +61,9 @@ public class HistoryController {
                 .build());
     }
 
+    @Operation(
+            description = "API lấy thông tin lịch sử theo ID."
+    )
     @GetMapping("/{historyId}")
     public ResponseEntity<ApiResponse<HistoryResponse>> getHistoryById(
             @PathVariable("historyId") Long historyId
@@ -64,6 +76,9 @@ public class HistoryController {
                 .build());
     }
 
+    @Operation(
+            description = "API cập nhật thông tin lịch sử theo ID."
+    )
     @PutMapping("/{historyId}")
     public ResponseEntity<ApiResponse<HistoryResponse>> updateHistoryById(
             @PathVariable("historyId") Long historyId,
@@ -77,6 +92,9 @@ public class HistoryController {
                 .build());
     }
 
+    @Operation(
+            description = "API xóa lịch sử theo ID."
+    )
     @DeleteMapping("/{historyId}")
     public ResponseEntity<ApiResponse<Void>> deleteHistoryById(
             @PathVariable("historyId") Long historyId
@@ -87,6 +105,25 @@ public class HistoryController {
                 .success(true)
                 .message("History deleted successfully")
                 .build()
+        );
+    }
+
+    @Operation(
+            description = "API lấy danh sách lịch sử theo ID người dùng với phân trang."
+    )
+    @GetMapping("/pepple/{peopleId}")
+    public ResponseEntity<ApiResponse<Page<HistoryResponse>>> getHistoriesByPeopleId(
+            @PathVariable("peopleId") Long peopleId,
+            @RequestParam(name = "page", defaultValue = "0") int page,
+            @RequestParam(name = "limit", defaultValue = "20") int limit
+    ) {
+        log.info("Fetching histories by people ID: {}", peopleId);
+        return ResponseEntity.ok(
+                ApiResponse.<Page<HistoryResponse>>builder()
+                        .success(true)
+                        .message("Fetching histories by people ID: " + peopleId + " successfully")
+                        .data(historyService.getHistoriesByPeopleId(peopleId, page, limit))
+                        .build()
         );
     }
 }

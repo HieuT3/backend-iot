@@ -21,7 +21,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 @Service
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -85,6 +84,8 @@ public class UserServiceImpl implements UserService {
         }
         existingUserById.setUsername(userRequest.getUsername());
         existingUserById.setPassword(passwordEncoder.encode(userRequest.getPassword()));
+        People people = peopleService.getPeopleEntityById(userRequest.getPeopleId());
+        existingUserById.setPeople(people);
         return userMapper.toUserResponse(
                 userRepository.save(existingUserById)
         );
@@ -97,7 +98,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<RegistrationTokenResponse> getToken() {
+    public List<RegistrationTokenResponse> getAllRegistrationTokens() {
         return userRepository.findAllRegistrationToken()
                 .stream()
                 .map(RegistrationTokenResponse::new)

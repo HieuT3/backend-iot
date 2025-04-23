@@ -1,7 +1,6 @@
-package com.backend.system.dto.request;
+package com.backend.system.dto.response;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -12,16 +11,10 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@ToString
-public class HistoryRequest {
+public class WarningResponse {
 
-    @NotNull
+    @JsonFormat(pattern = "yyyy-MM-dd HH-mm-ss")
     LocalDateTime timestamp;
-
-    Long peopleId;
-
     String imagePath;
-
-    @NotBlank
-    String mode;
+    String info;
 }

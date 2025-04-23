@@ -21,7 +21,8 @@ public enum ErrorCode {
     AUTHENTICATION_FAILED(401, "Authentication failed", HttpStatus.UNAUTHORIZED),
     FORBIDDEN(403, "Forbidden - You do not have permission to access this resource", HttpStatus.FORBIDDEN),
     UNAUTHORIZED(401, "Unauthorized - You need to log in to access this resource", HttpStatus.UNAUTHORIZED),
-    INVALID_TOKEN(401, "Invalid or expired authentication token", HttpStatus.UNAUTHORIZED),
+    INVALID_TOKEN(401, "The provided token is invalid", HttpStatus.UNAUTHORIZED),
+    TOKEN_EXPIRED(401, "The token has expired", HttpStatus.UNAUTHORIZED),
     INVALID_CREDENTIALS(401, "Invalid credentials", HttpStatus.UNAUTHORIZED),
     INTERNAL_SERVER_ERROR(500, "Internal server error", HttpStatus.INTERNAL_SERVER_ERROR),
     IMAGE_UPLOAD_ERROR(500, "Error uploading image", HttpStatus.INTERNAL_SERVER_ERROR);

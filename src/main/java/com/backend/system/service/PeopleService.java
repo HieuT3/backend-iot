@@ -5,7 +5,6 @@ import com.backend.system.dto.response.PeopleResponse;
 import com.backend.system.entity.People;
 import org.springframework.data.domain.Page;
 
-import java.util.List;
 import java.util.Optional;
 
 public interface PeopleService {

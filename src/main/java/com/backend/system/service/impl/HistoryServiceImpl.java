@@ -81,6 +81,15 @@ public class HistoryServiceImpl implements HistoryService {
         historyRepository.delete(existingHistory);
     }
 
+    @Override
+    public Page<HistoryResponse> getHistoriesByPeopleId(Long peopleId, int page, int limit) {
+        Pageable pageable = PageRequest.of(page, page);
+        People people = peopleService.getPeopleEntityById(peopleId);
+        return historyRepository.findAllByPeople(people, pageable)
+                .map(historyMapper::toHistoryResponse);
+
+    }
+
     private History getHistoryEntityById(Long historyId) {
         return historyRepository.findById(historyId)
                 .orElseThrow(() -> new AppException(ErrorCode.HISTORY_NOT_FOUND));

@@ -6,6 +6,8 @@ import com.backend.system.dto.response.ApiResponse;
 import com.backend.system.dto.response.RegistrationTokenResponse;
 import com.backend.system.dto.response.UserResponse;
 import com.backend.system.service.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -21,9 +23,13 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequiredArgsConstructor
 @Slf4j
+@Tag(name = "User Controller", description = "Controller gồm các API quản lý User")
 public class UserController {
     UserService userService;
 
+    @Operation(
+            description = "API lấy danh sách tất cả admin trong hệ thống."
+    )
     @GetMapping("")
     public ResponseEntity<ApiResponse<List<UserResponse>>> getAll() {
         log.info("Fetching all users");
@@ -36,6 +42,9 @@ public class UserController {
         );
     }
 
+    @Operation(
+            description = "API thêm mới admin vào hệ thống."
+    )
     @PostMapping("")
     public ResponseEntity<ApiResponse<UserResponse>> addUser(
             @Valid @RequestBody UserRequest userRequest
@@ -50,6 +59,9 @@ public class UserController {
         );
     }
 
+    @Operation(
+            description = "API lấy thông tin admin theo ID."
+    )
     @GetMapping("/{userId}")
     public ResponseEntity<ApiResponse<UserResponse>> getUserById(@PathVariable("userId") Long userId) {
         log.info("Fetching user with ID: {}", userId);
@@ -62,6 +74,9 @@ public class UserController {
         );
     }
 
+    @Operation(
+            description = "API cập nhật thông tin admin theo ID."
+    )
     @PutMapping("/{userId}")
     public ResponseEntity<ApiResponse<UserResponse>> updateUserById(
             @PathVariable("userId") Long userId,
@@ -76,6 +91,9 @@ public class UserController {
         );
     }
 
+    @Operation(
+            description = "API xóa admin theo ID."
+    )
     @DeleteMapping("/{userId}")
     public ResponseEntity<ApiResponse<Void>> deleteUserById(@PathVariable("userId") Long userId) {
         log.info("Delete user with ID: {}", userId);
@@ -88,6 +106,9 @@ public class UserController {
         );
     }
 
+    @Operation(
+            description = "API lấy danh sách tất cả registration token trong hệ thống."
+    )
     @GetMapping("/token")
     public ResponseEntity<ApiResponse<List<RegistrationTokenResponse>>> getToken() {
         log.info("Fetching all tokens");
@@ -95,11 +116,14 @@ public class UserController {
                 ApiResponse.<List<RegistrationTokenResponse>>builder()
                         .success(true)
                         .message("Fetching all tokens successfully")
-                        .data(userService.getToken())
+                        .data(userService.getAllRegistrationTokens())
                         .build()
         );
     }
 
+    @Operation(
+            description = "API lấy registration token của admin theo ID."
+    )
     @GetMapping("/{userId}/token")
     public ResponseEntity<ApiResponse<RegistrationTokenResponse>> getTokenByUserId(@PathVariable("userId") Long userId) {
         log.info("Fetching token for user with ID: {}", userId);
@@ -112,6 +136,9 @@ public class UserController {
         );
     }
 
+    @Operation(
+            description = "API cập nhật registration token của admin theo ID."
+    )
     @PutMapping("/{userId}/token")
     public ResponseEntity<ApiResponse<Void>> updateTokenByUserId(
             @PathVariable("userId") Long userId,

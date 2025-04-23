@@ -16,3 +16,7 @@ logging:
     root: info
     org:
       springframework: debug
+
+firebase:
+  credentials:
+    path: classpath:firebase/firebase-service-account.json

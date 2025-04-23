@@ -11,4 +11,5 @@ public interface HistoryService {
      HistoryResponse addHistory(HistoryRequest historyRequest);
      HistoryResponse updateHistoryById(Long historyId, HistoryRequest historyRequest);
      void deleteHistoryById(Long historyId);
+     Page<HistoryResponse> getHistoriesByPeopleId(Long peopleId, int page, int limit);
 }

@@ -33,4 +33,5 @@ build/
 .vscode/
 
 .env
-test-fcm-bd57e-firebase-adminsdk-fbsvc-6d09c1a828.json
+src/main/resources/firebase/firebase-service-account.json
+compose.yaml
