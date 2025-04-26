@@ -18,6 +18,7 @@ public enum ErrorCode {
     USERNAME_ALREADY_EXISTS(409, "Username already exists", HttpStatus.CONFLICT),
     HISTORY_NOT_FOUND(404, "History not found", HttpStatus.NOT_FOUND),
     WARNING_NOT_FOUND(404, "Warning not found", HttpStatus.NOT_FOUND),
+    PI_NOT_FOUND(404, "Pi not found", HttpStatus.NOT_FOUND),
     AUTHENTICATION_FAILED(401, "Authentication failed", HttpStatus.UNAUTHORIZED),
     FORBIDDEN(403, "Forbidden - You do not have permission to access this resource", HttpStatus.FORBIDDEN),
     UNAUTHORIZED(401, "Unauthorized - You need to log in to access this resource", HttpStatus.UNAUTHORIZED),

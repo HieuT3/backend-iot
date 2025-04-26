@@ -1,4 +1,4 @@
-package com.backend.system.dto.firebase;
+package com.backend.system.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -13,7 +13,7 @@ import java.util.Map;
 @NoArgsConstructor
 @Getter
 @Setter
-public class Notice implements Serializable {
+public class NoticeFCM implements Serializable {
     private String subject;
     private String content;
     private String imagePath;

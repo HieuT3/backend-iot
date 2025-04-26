@@ -1,6 +1,6 @@
 package com.backend.system.service.impl;
 
-import com.backend.system.dto.firebase.Notice;
+import com.backend.system.entity.NoticeFCM;
 import com.backend.system.service.FCMService;
 import com.google.api.core.ApiFuture;
 import com.google.firebase.messaging.BatchResponse;
@@ -25,20 +25,20 @@ public class FCMServiceImpl implements FCMService {
     FirebaseMessaging firebaseMessaging;
 
     @Override
-    public void sendNotification(Notice notice) {
-        List<String> registrationTokens = notice.getRegistrationTokens();
+    public void sendNotification(NoticeFCM noticeFCM) {
+        List<String> registrationTokens = noticeFCM.getRegistrationTokens();
         Notification notification = Notification
                 .builder()
-                .setTitle(notice.getSubject())
-                .setBody(notice.getContent())
-                .setImage(notice.getImagePath())
+                .setTitle(noticeFCM.getSubject())
+                .setBody(noticeFCM.getContent())
+                .setImage(noticeFCM.getImagePath())
                 .build();
 
         MulticastMessage multicastMessage = MulticastMessage
                 .builder()
                 .addAllTokens(registrationTokens)
                 .setNotification(notification)
-                .putAllData(notice.getData())
+                .putAllData(noticeFCM.getData())
                 .build();
 
         ApiFuture<BatchResponse> apiFuture = firebaseMessaging.sendEachForMulticastAsync(multicastMessage);

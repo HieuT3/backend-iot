@@ -1,6 +1,6 @@
 package com.backend.system.service.impl;
 
-import com.backend.system.dto.firebase.Notice;
+import com.backend.system.entity.NoticeFCM;
 import com.backend.system.dto.request.WarningRequest;
 import com.backend.system.dto.response.RegistrationTokenResponse;
 import com.backend.system.dto.response.WarningResponse;
@@ -87,14 +87,14 @@ public class WarningServiceImpl implements WarningService {
                 "info", warning.getInfo(),
                 "image", warning.getImagePath()
         );
-        Notice notice = new Notice();
-        notice.setSubject("");
-        notice.setContent("");
-        notice.setData(data);
-        notice.setImagePath(warning.getImagePath());
-        notice.setRegistrationTokens(tokens);
+        NoticeFCM noticeFCM = new NoticeFCM();
+        noticeFCM.setSubject("");
+        noticeFCM.setContent("");
+        noticeFCM.setData(data);
+        noticeFCM.setImagePath(warning.getImagePath());
+        noticeFCM.setRegistrationTokens(tokens);
 
-        fcmService.sendNotification(notice);
+        fcmService.sendNotification(noticeFCM);
     }
 
     @Override
