@@ -70,6 +70,8 @@ public class PiServiceImpl implements PiService {
 
         sendMessage(pi);
 
+        System.out.println("Pi mode updated: " + pi.getMode());
+
         return piMapper.convertToPiResponse(pi);
     }
 
@@ -84,6 +86,8 @@ public class PiServiceImpl implements PiService {
                 .message("UPDATE_MODE")
                 .data(pi)
                 .build();
+
+        System.out.println("Sending message: " + notification);
 
         notificationService.sendMessage("/topic/messages", notification);
     }
