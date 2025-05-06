@@ -30,6 +30,8 @@ public class SecurityConfig {
     private final String[] PUBLIC_ENDPOINT = {
             "/api/auth/login",
             "/api/auth/register",
+            "/api/history",
+            "/api/warning",
             "/v3/api-docs/**",
             "/swagger-ui/**",
             "/swagger-ui.html",
@@ -47,11 +49,11 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorize ->
                         authorize.requestMatchers(PUBLIC_ENDPOINT).permitAll()
                 )
-//                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-//                .exceptionHandling(exception ->
-//                        exception.authenticationEntryPoint(authenticationEntryPoint)
-//                                .accessDeniedHandler(accessDeniedHandler)
-//                )
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .exceptionHandling(exception ->
+                        exception.authenticationEntryPoint(authenticationEntryPoint)
+                                .accessDeniedHandler(accessDeniedHandler)
+                )
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .build();

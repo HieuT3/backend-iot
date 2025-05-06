@@ -9,6 +9,7 @@ import com.backend.system.exception.AppException;
 import com.backend.system.exception.ErrorCode;
 import com.backend.system.mapper.WarningMapper;
 import com.backend.system.repository.WarningRepository;
+import com.backend.system.service.CloudinaryService;
 import com.backend.system.service.FCMService;
 import com.backend.system.service.UserService;
 import com.backend.system.service.WarningService;
@@ -20,10 +21,15 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 
@@ -36,6 +42,7 @@ public class WarningServiceImpl implements WarningService {
     FCMService fcmService;
     UserService userService;
     WarningMapper warningMapper;
+    CloudinaryService cloudinaryService;
 
     private Page<WarningResponse> getAll(Pageable pageable) {
         return warningRepository.findAll(pageable)
@@ -63,11 +70,34 @@ public class WarningServiceImpl implements WarningService {
                 .orElseThrow(() -> new AppException(ErrorCode.WARNING_NOT_FOUND));
     }
 
+    private BufferedImage base64ToImage(String base64String) throws Exception {
+        String cleanBase64 = base64String.replaceFirst("^data:image/[^;]+;base64,", "");
+        byte[] imageBytes = Base64.getDecoder().decode(cleanBase64);
+        ByteArrayInputStream bis = new ByteArrayInputStream(imageBytes);
+        BufferedImage image = ImageIO.read(bis);
+        bis.close();
+        if (image == null) {
+            throw new IllegalArgumentException("Không thể đọc dữ liệu ảnh từ chuỗi Base64");
+        }
+        return image;
+    }
+
+    public String uploadImage(String base64String) throws Exception {
+        BufferedImage image = base64ToImage(base64String);
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ImageIO.write(image, "jpg", baos);
+        byte[] imageBytes = baos.toByteArray();
+
+        return cloudinaryService.uploadBytes(imageBytes);
+    }
+
     @Override
-    public WarningResponse addWarning(WarningRequest warningRequest) {
+    public WarningResponse addWarning(WarningRequest warningRequest) throws Exception {
         Warning warning = new Warning();
+        String imagePath = uploadImage(warning.getImagePath());
         warning.setTimestamp(warningRequest.getTimestamp());
-        warning.setImagePath(warningRequest.getImagePath());
+        warning.setImagePath(imagePath);
         warning.setInfo(warningRequest.getInfo());
         warning = warningRepository.save(warning);
 //        sendNotification(warning);

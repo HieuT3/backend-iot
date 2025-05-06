@@ -54,7 +54,7 @@ public class WarningController {
     @PostMapping("")
     public ResponseEntity<ApiResponse<WarningResponse>> addWarning(
             @Valid @RequestBody WarningRequest warningRequest
-            ) {
+            ) throws Exception {
         log.info("Adding new warning");
         return ResponseEntity.ok(
                 ApiResponse.<WarningResponse>builder()

@@ -12,7 +12,7 @@ public interface WarningService {
     Page<WarningResponse> getAll(int page, int limit, LocalDate start, LocalDate end);
     WarningResponse getWarningById(Long warningId);
     Warning getWarningEntityById(Long warningId);
-    WarningResponse addWarning(WarningRequest warningRequest);
+    WarningResponse addWarning(WarningRequest warningRequest) throws Exception;
     WarningResponse updateWarningById(Long warningId, WarningRequest warningRequest);
     void deleteWarningById(Long warningId);
 }
