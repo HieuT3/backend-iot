@@ -50,7 +50,7 @@ public class PeopleServiceImpl implements PeopleService {
             People people = new People();
             people.setName(peopleRequest.getName());
             people.setAge(peopleRequest.getAge());
-            people.setFaceImagePath(cloudinaryService.upload(peopleRequest.getFile()));
+            people.setFaceImagePath(cloudinaryService.uploadMultipartFile(peopleRequest.getFile()));
             return peopleMapper.toPeopleResponse(peopleRepository.save(people));
         } catch (IOException e) {
             log.error("Error uploading image to Cloudinary: {}", e.getMessage());
@@ -64,7 +64,7 @@ public class PeopleServiceImpl implements PeopleService {
             People existingPeople = getPeopleEntityById(peopleId);
             existingPeople.setName(peopleRequest.getName());
             if (peopleRequest.getAge() != 0) existingPeople.setAge(peopleRequest.getAge());
-            if (peopleRequest.getFile() != null) existingPeople.setFaceImagePath(cloudinaryService.upload(peopleRequest.getFile()));
+            if (peopleRequest.getFile() != null) existingPeople.setFaceImagePath(cloudinaryService.uploadMultipartFile(peopleRequest.getFile()));
             return peopleMapper.toPeopleResponse(
                     peopleRepository.save(existingPeople)
             );

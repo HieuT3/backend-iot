@@ -10,6 +10,7 @@ import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 import java.util.UUID;
@@ -23,7 +24,7 @@ public class CloudinaryServiceImpl implements CloudinaryService {
     Cloudinary cloudinary;
 
     @Override
-    public String upload(MultipartFile file) throws IOException {
+    public String uploadMultipartFile(MultipartFile file) throws IOException {
         UUID uuid = UUID.randomUUID();
         Map params = ObjectUtils.asMap(
                 "public_id", uuid.toString(),
@@ -33,6 +34,24 @@ public class CloudinaryServiceImpl implements CloudinaryService {
         );
 
         Map result = cloudinary.uploader().upload(file.getBytes(), params);
+        return (String) result.get("url");
+    }
+
+    @Override
+    public String uploadFile(File file) throws IOException {
+        return "";
+    }
+
+    @Override
+    public String uploadBytes(byte[] file) throws IOException {
+        UUID uuid = UUID.randomUUID();
+        Map params = ObjectUtils.asMap(
+                "public_id", uuid.toString(),
+                "use_filename", true,
+                "unique_filename", false,
+                "overwrite", true
+        );
+        Map result = cloudinary.uploader().upload(file, params);
         return (String) result.get("url");
     }
 

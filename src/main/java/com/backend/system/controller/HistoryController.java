@@ -52,7 +52,7 @@ public class HistoryController {
     @PostMapping("")
     public ResponseEntity<ApiResponse<HistoryResponse>> addHistory(
             @Valid @RequestBody HistoryRequest historyRequest
-    ) {
+    ) throws Exception {
         log.info("Adding new history");
         return ResponseEntity.ok(ApiResponse.<HistoryResponse>builder()
                 .success(true)

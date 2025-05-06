@@ -8,7 +8,7 @@ import java.time.LocalDate;
 public interface HistoryService {
      Page<HistoryResponse> getAll(int page, int limit, LocalDate start, LocalDate end);
      HistoryResponse getHistoryById(Long historyId);
-     HistoryResponse addHistory(HistoryRequest historyRequest);
+     HistoryResponse addHistory(HistoryRequest historyRequest) throws Exception;
      HistoryResponse updateHistoryById(Long historyId, HistoryRequest historyRequest);
      void deleteHistoryById(Long historyId);
      Page<HistoryResponse> getHistoriesByPeopleId(Long peopleId, int page, int limit);

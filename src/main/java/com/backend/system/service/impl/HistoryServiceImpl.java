@@ -8,8 +8,10 @@ import com.backend.system.exception.AppException;
 import com.backend.system.exception.ErrorCode;
 import com.backend.system.mapper.HistoryMapper;
 import com.backend.system.repository.HistoryRepository;
+import com.backend.system.service.CloudinaryService;
 import com.backend.system.service.HistoryService;
 import com.backend.system.service.PeopleService;
+import com.cloudinary.utils.ObjectUtils;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -18,9 +20,15 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.Base64;
 import java.util.Optional;
 
 @Service
@@ -31,6 +39,7 @@ public class HistoryServiceImpl implements HistoryService {
     HistoryRepository historyRepository;
     HistoryMapper historyMapper;
     PeopleService peopleService;
+    CloudinaryService cloudinaryService;
 
     private Page<History> getAll(Pageable pageable) {
         return historyRepository.findAll(pageable);
@@ -51,14 +60,37 @@ public class HistoryServiceImpl implements HistoryService {
         return historyMapper.toHistoryResponse(getHistoryEntityById(historyId));
     }
 
+    private BufferedImage base64ToImage(String base64String) throws Exception {
+        String cleanBase64 = base64String.replaceFirst("^data:image/[^;]+;base64,", "");
+        byte[] imageBytes = Base64.getDecoder().decode(cleanBase64);
+        ByteArrayInputStream bis = new ByteArrayInputStream(imageBytes);
+        BufferedImage image = ImageIO.read(bis);
+        bis.close();
+        if (image == null) {
+            throw new IllegalArgumentException("Không thể đọc dữ liệu ảnh từ chuỗi Base64");
+        }
+        return image;
+    }
+
+    public String uploadImage(String base64String) throws Exception {
+        BufferedImage image = base64ToImage(base64String);
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ImageIO.write(image, "jpg", baos);
+        byte[] imageBytes = baos.toByteArray();
+
+        return cloudinaryService.uploadBytes(imageBytes);
+    }
+
     @Override
-    public HistoryResponse addHistory(HistoryRequest historyRequest) {
+    public HistoryResponse addHistory(HistoryRequest historyRequest) throws Exception {
         Optional<People> optional = Optional.empty();
         if (historyRequest.getPeopleId() != null)
             optional = peopleService.getOptionalPeopleById(historyRequest.getPeopleId());
+        String imagePath = uploadImage(historyRequest.getImagePath());
         History history = new History();
         history.setTimestamp(historyRequest.getTimestamp());
-        history.setImagePath(historyRequest.getImagePath());
+        history.setImagePath(imagePath);
         history.setMode(historyRequest.getMode());
         optional.ifPresent(history::setPeople);
         return historyMapper.toHistoryResponse(historyRepository.save(history));
