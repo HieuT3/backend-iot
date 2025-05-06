@@ -70,7 +70,7 @@ public class WarningServiceImpl implements WarningService {
         warning.setImagePath(warningRequest.getImagePath());
         warning.setInfo(warningRequest.getInfo());
         warning = warningRepository.save(warning);
-        sendNotification(warning);
+//        sendNotification(warning);
         return warningMapper.covertToWarningResponse(warning);
     }
 
