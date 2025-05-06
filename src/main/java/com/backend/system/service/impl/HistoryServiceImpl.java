@@ -88,6 +88,7 @@ public class HistoryServiceImpl implements HistoryService {
         if (historyRequest.getPeopleId() != null)
             optional = peopleService.getOptionalPeopleById(historyRequest.getPeopleId());
         String imagePath = uploadImage(historyRequest.getImagePath());
+        System.out.println(imagePath);
         History history = new History();
         history.setTimestamp(historyRequest.getTimestamp());
         history.setImagePath(imagePath);
