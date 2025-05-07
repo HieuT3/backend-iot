@@ -94,8 +94,9 @@ public class WarningServiceImpl implements WarningService {
 
     @Override
     public WarningResponse addWarning(WarningRequest warningRequest) throws Exception {
+        String imagePath = uploadImage(warningRequest.getImagePath());
         Warning warning = new Warning();
-        String imagePath = uploadImage(warning.getImagePath());
+
         warning.setTimestamp(warningRequest.getTimestamp());
         warning.setImagePath(imagePath);
         warning.setInfo(warningRequest.getInfo());
