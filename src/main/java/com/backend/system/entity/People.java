@@ -24,7 +24,14 @@ public class People extends BaseEntity{
     @Column(nullable = false)
     String name;
 
-    int age;
+    @Column(nullable = false)
+    String identificationId;
+
+    @Column(nullable = false)
+    String gender;
+
+    @Column(nullable = false)
+    String birthday;
 
     @Column(name = "face_image_path")
     String faceImagePath;

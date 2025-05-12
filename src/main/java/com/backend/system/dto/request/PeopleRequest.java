@@ -14,6 +14,12 @@ public class PeopleRequest {
 
     @NotBlank(message = "Name is required")
     String name;
-    int age;
+
+    @NotBlank(message = "Gender is required")
+    String gender;
+
+    @NotBlank(message = "Birthday is required")
+    String birthday;
+
     MultipartFile file;
 }

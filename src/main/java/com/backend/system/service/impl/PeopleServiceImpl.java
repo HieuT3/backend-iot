@@ -19,7 +19,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.text.Normalizer;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -44,12 +48,45 @@ public class PeopleServiceImpl implements PeopleService {
         return peopleMapper.toPeopleResponse(people);
     }
 
+    private String normalizeCapital(String name) {
+        return Arrays.stream(name.split("\\s+"))
+                .map(word ->
+                        Character.toUpperCase(word.charAt(0)) + word.substring(1).toLowerCase())
+                .collect(Collectors.joining(" "));
+    }
+
+    private String normalizeUnMark(String name) {
+        return Normalizer.normalize(name, java.text.Normalizer.Form.NFD).replaceAll("\\p{M}", "");
+    }
+
+    private String generateIdentificationId(String name) {
+        System.out.println(name);
+        String[] names = name.split("\\s+");
+        List<People> people = peopleRepository.getAllByNameEndsWith(names[names.length - 1])
+                .orElse(List.of());
+        int count = 0;
+        if (people.isEmpty()) count = 1;
+        else count = people.size() + 1;
+
+        StringBuilder sb = new StringBuilder();
+        sb.append(normalizeUnMark(names[names.length - 1]));
+        for (int i = 0; i < names.length - 1; i++) sb.append(names[i].charAt(0));
+        String index = Integer.toString(count);
+        sb.append(index.length() == 1 ? ("0" + index) : index);
+        return sb.toString();
+    }
+
     @Override
     public PeopleResponse addPeople(PeopleRequest peopleRequest) {
         try {
             People people = new People();
-            people.setName(peopleRequest.getName());
-            people.setAge(peopleRequest.getAge());
+            String name = normalizeCapital(peopleRequest.getName());
+            String identificationId = generateIdentificationId(name);
+
+            people.setName(name);
+            people.setIdentificationId(identificationId);
+            people.setGender(peopleRequest.getGender());
+            people.setBirthday(peopleRequest.getBirthday());
             people.setFaceImagePath(cloudinaryService.uploadMultipartFile(peopleRequest.getFile()));
             return peopleMapper.toPeopleResponse(peopleRepository.save(people));
         } catch (IOException e) {
@@ -63,7 +100,8 @@ public class PeopleServiceImpl implements PeopleService {
         try {
             People existingPeople = getPeopleEntityById(peopleId);
             existingPeople.setName(peopleRequest.getName());
-            if (peopleRequest.getAge() != 0) existingPeople.setAge(peopleRequest.getAge());
+            existingPeople.setGender(peopleRequest.getGender());
+            existingPeople.setBirthday(peopleRequest.getBirthday());
             if (peopleRequest.getFile() != null) existingPeople.setFaceImagePath(cloudinaryService.uploadMultipartFile(peopleRequest.getFile()));
             return peopleMapper.toPeopleResponse(
                     peopleRepository.save(existingPeople)

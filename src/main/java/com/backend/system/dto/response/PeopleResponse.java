@@ -11,6 +11,8 @@ import lombok.experimental.FieldDefaults;
 public class PeopleResponse {
     Long peopleId;
     String name;
-    int age;
+    String identificationId;
+    String gender;
+    String birthday;
     String faceImagePath;
 }
