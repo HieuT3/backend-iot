@@ -2,13 +2,17 @@ package com.backend.system.service.impl;
 
 import com.backend.system.dto.request.PeopleRequest;
 import com.backend.system.dto.response.PeopleResponse;
+import com.backend.system.entity.Notification;
 import com.backend.system.entity.People;
 import com.backend.system.exception.AppException;
 import com.backend.system.exception.ErrorCode;
 import com.backend.system.mapper.PeopleMapper;
 import com.backend.system.repository.PeopleRepository;
 import com.backend.system.service.CloudinaryService;
+import com.backend.system.service.NotificationService;
 import com.backend.system.service.PeopleService;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -22,6 +26,7 @@ import java.io.IOException;
 import java.text.Normalizer;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -34,6 +39,8 @@ public class PeopleServiceImpl implements PeopleService {
     PeopleRepository peopleRepository;
     PeopleMapper peopleMapper;
     CloudinaryService cloudinaryService;
+    NotificationService notificationService;
+    ObjectMapper objectMapper;
 
     @Override
     public Page<PeopleResponse> getAll(int page, int limit) {
@@ -76,19 +83,37 @@ public class PeopleServiceImpl implements PeopleService {
         return sb.toString();
     }
 
+    private void sendMessage(String imagePath) throws JsonProcessingException {
+        Map<String, String> map = Map.of(
+                "image_path", imagePath
+        );
+        Notification<Object> notification = Notification.builder()
+                .message("ADD_PEOPLE")
+                .data(objectMapper.writeValueAsString(map))
+                .build();
+
+        notificationService.sendMessage("/topic/messages", notification);
+    }
+
     @Override
     public PeopleResponse addPeople(PeopleRequest peopleRequest) {
         try {
             People people = new People();
             String name = normalizeCapital(peopleRequest.getName());
             String identificationId = generateIdentificationId(name);
+            String imagePath = cloudinaryService.uploadMultipartFile(peopleRequest.getFile());
 
             people.setName(name);
             people.setIdentificationId(identificationId);
             people.setGender(peopleRequest.getGender());
             people.setBirthday(peopleRequest.getBirthday());
-            people.setFaceImagePath(cloudinaryService.uploadMultipartFile(peopleRequest.getFile()));
-            return peopleMapper.toPeopleResponse(peopleRepository.save(people));
+            people.setFaceImagePath(imagePath);
+
+            sendMessage(imagePath);
+
+            people = peopleRepository.save(people);
+
+            return peopleMapper.toPeopleResponse(people);
         } catch (IOException e) {
             log.error("Error uploading image to Cloudinary: {}", e.getMessage());
             throw new AppException(ErrorCode.IMAGE_UPLOAD_ERROR);
