@@ -83,13 +83,15 @@ public class PeopleServiceImpl implements PeopleService {
         return sb.toString();
     }
 
-    private void sendMessage(String imagePath) throws JsonProcessingException {
-        Map<String, String> map = Map.of(
-                "image_path", imagePath
+    private void sendMessage(String identificationId, String imagePath, long peopleId) throws JsonProcessingException {
+        Map<String, Object> map = Map.of(
+		"identificationId", identificationId,
+               "image_path", imagePath,
+               "peopleId", peopleId
         );
         Notification<Object> notification = Notification.builder()
                 .message("ADD_PEOPLE")
-                .data(objectMapper.writeValueAsString(map))
+                .data(map)
                 .build();
 
         notificationService.sendMessage("/topic/messages", notification);
@@ -109,9 +111,11 @@ public class PeopleServiceImpl implements PeopleService {
             people.setBirthday(peopleRequest.getBirthday());
             people.setFaceImagePath(imagePath);
 
-            sendMessage(imagePath);
+            
 
             people = peopleRepository.save(people);
+
+            sendMessage(identificationId, imagePath, people.getPeopleId());
 
             return peopleMapper.toPeopleResponse(people);
         } catch (IOException e) {

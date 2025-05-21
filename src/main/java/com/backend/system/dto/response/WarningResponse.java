@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class WarningResponse {
 
+    Long warningId;
     @JsonFormat(pattern = "yyyy-MM-dd HH-mm-ss")
     LocalDateTime timestamp;
     String imagePath;
