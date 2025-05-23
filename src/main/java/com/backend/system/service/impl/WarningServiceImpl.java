@@ -13,9 +13,12 @@ import com.backend.system.service.CloudinaryService;
 import com.backend.system.service.FCMService;
 import com.backend.system.service.UserService;
 import com.backend.system.service.WarningService;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -32,10 +35,12 @@ import java.time.format.DateTimeFormatter;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 @Service
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequiredArgsConstructor
+@Slf4j
 public class WarningServiceImpl implements WarningService {
 
     WarningRepository warningRepository;
@@ -43,6 +48,7 @@ public class WarningServiceImpl implements WarningService {
     UserService userService;
     WarningMapper warningMapper;
     CloudinaryService cloudinaryService;
+    ObjectMapper objectMapper;
 
     private Page<WarningResponse> getAll(Pageable pageable) {
         return warningRepository.findAll(pageable)
@@ -94,38 +100,47 @@ public class WarningServiceImpl implements WarningService {
 
     @Override
     public WarningResponse addWarning(WarningRequest warningRequest) throws Exception {
-        String imagePath = uploadImage(warningRequest.getImagePath());
+       String imagePath = uploadImage(warningRequest.getImagePath());
         Warning warning = new Warning();
 
         warning.setTimestamp(warningRequest.getTimestamp());
         warning.setImagePath(imagePath);
         warning.setInfo(warningRequest.getInfo());
         warning = warningRepository.save(warning);
-//        sendNotification(warning);
+
+        sendNotification(warning);
+
         return warningMapper.covertToWarningResponse(warning);
     }
 
-    private void sendNotification(Warning warning) {
+    private void sendNotification(Warning warning) throws JsonProcessingException {
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-
+        System.out.println(warning);
         List<String> tokens = userService.getAllRegistrationTokens()
                 .stream()
                 .map(RegistrationTokenResponse::getToken)
+                .filter(Objects::nonNull)
                 .toList();
 
         Map<String, String> data = Map.of(
                 "timestamp", warning.getTimestamp().format(dateTimeFormatter),
                 "info", warning.getInfo(),
-                "image", warning.getImagePath()
+                "image", warning.getImagePath(),
+                "warningId", warning.getWarningId().toString(),
+                "warning", objectMapper.writeValueAsString(warning)
         );
         NoticeFCM noticeFCM = new NoticeFCM();
-        noticeFCM.setSubject("");
-        noticeFCM.setContent("");
+        noticeFCM.setSubject("Cảnh báo hệ thống mới");
+        noticeFCM.setContent("Phát hiện cảnh báo: " + warning.getInfo());
         noticeFCM.setData(data);
         noticeFCM.setImagePath(warning.getImagePath());
         noticeFCM.setRegistrationTokens(tokens);
 
-        fcmService.sendNotification(noticeFCM);
+        try {
+            fcmService.sendNotification(noticeFCM);
+        } catch (Exception e) {
+            log.error("Lỗi khi gửi thông báo FCM: {}", e.getMessage());
+        }
     }
 
     @Override
